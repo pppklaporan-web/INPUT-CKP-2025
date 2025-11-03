@@ -4,8 +4,6 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Laporan Kegiatan Lembur - Cetak PDF</title>
-
-<!-- html2pdf.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
@@ -22,7 +20,7 @@
   button{background:#0b66c2;color:white;border:none;padding:12px 14px;border-radius:8px;cursor:pointer;font-weight:700}
   .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
 
-  /* Halaman cetak */
+  /* area cetak */
   .paper{width:210mm;min-height:297mm;padding:20mm;background:white;margin:0 auto;color:#111;}
   .center{text-align:center}
   h2{margin:0 0 4px}
@@ -33,25 +31,31 @@
   td:nth-child(2){width:24%}
   td:nth-child(3),td:nth-child(4){width:35%}
 
-  /* Foto tabel */
-  .photo-table{margin-top:0;border:1px solid #000;width:100%;border-collapse:collapse}
-  .photo-table td{border:1px solid #000;text-align:center;padding:6px}
-  .photo-table img{
-    max-width:100%;
-    height:240px; /* seragam besar */
+  /* foto di dalam tabel */
+  .foto-cell{
+    width:100%;
+    max-width:300px;
+    height:200px;
     object-fit:cover;
-    border:1px solid #bbb;
-    padding:3px;
+    border:1px solid #888;
     border-radius:6px;
+    padding:3px;
+    display:block;
+    margin:4px auto;
   }
 
-  /* Tanda tangan */
+  /* tanda tangan */
   .sign-section{margin-top:40px;}
   .sign-row{display:flex;justify-content:space-between;flex-wrap:wrap;text-align:center;}
   .sign-col{width:45%;min-width:220px;}
+  .sign-title{line-height:1.2;margin-bottom:60px;}
   .sign-col b{display:block;margin-top:60px}
   .smallprint{font-size:0.85rem;color:#444;margin-top:6px;text-align:right}
-  @media (max-width:720px){.row{flex-direction:column}.sign-row{flex-direction:column;align-items:center}.sign-col{width:100%}.paper{padding:10mm}}
+  @media (max-width:720px){
+    .row{flex-direction:column}
+    .sign-row{flex-direction:column;align-items:center}
+    .sign-col{width:100%}
+  }
 </style>
 </head>
 <body>
@@ -91,17 +95,6 @@
         </div>
       </div>
 
-     <div class="row" style="margin-top:12px">
-        <div class="col">
-          <label>Nama Pimpinan (Mengetahui)</label>
-          <input id="pimpinan" type="text" placeholder="Nama Pimpinan" />
-        </div>
-        <div class="col">
-          <label>Nama Pelaksana 2 (jika ada)</label>
-          <input id="nama2" type="text" placeholder="Nama pelaksana kedua (opsional)" />
-        </div>
-      </div>
-
       <div class="actions">
         <button id="previewBtn" type="button">Tampilkan Preview</button>
         <button id="downloadBtn" type="button">Buat PDF / Cetak</button>
@@ -115,8 +108,6 @@
   </div>
 
 <script>
-const pimpinan = "Nama Pimpinan"; // <-- ubah di sini sesuai pimpinan saat ini
-
 function fileToDataURL(file){
   return new Promise((resolve)=>{
     if(!file){resolve(null);return;}
@@ -136,7 +127,6 @@ async function buildPaper(){
   const hasil=document.getElementById('hasil').value||'';
   const foto1=document.getElementById('foto1').files[0];
   const foto2=document.getElementById('foto2').files[0];
-  const pimpinan = document.getElementById('pimpinan').value || '';
   const data1=await fileToDataURL(foto1);
   const data2=await fileToDataURL(foto2);
 
@@ -151,20 +141,20 @@ async function buildPaper(){
       <tr><th>No</th><th>Nama</th><th>Rencana Pekerjaan</th><th>Hasil Lembur</th></tr>
     </thead>
     <tbody>
-      <tr><td>1</td><td>${escape(nama)}</td><td>${escape(kegiatan)}</td><td>${escape(hasil)}</td></tr>
+      <tr>
+        <td>1</td>
+        <td>${escape(nama)}</td>
+        <td>${escape(kegiatan)}</td>
+        <td>${escape(hasil)}</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><b>Pelaksanaan<br>Kegiatan</b></td>
+        <td>${data1 ? `<img src="${data1}" class="foto-cell">` : ''}</td>
+        <td>${data2 ? `<img src="${data2}" class="foto-cell">` : ''}</td>
+      </tr>
     </tbody>
   </table>`;
-
-  let photoTable='';
-  if(data1 || data2){
-    photoTable=`<table class="photo-table">
-      <tr><th colspan="2">Pelaksanaan Kegiatan</th></tr>
-      <tr>
-        <td>${data1 ? `<img src="${data1}">` : ''}</td>
-        <td>${data2 ? `<img src="${data2}">` : ''}</td>
-      </tr>
-    </table>`;
-  }
 
   const sign=`
   <div class="sign-section">
@@ -175,7 +165,7 @@ async function buildPaper(){
           Kepala Badan Pusat Statistik<br>
           Provinsi Sumatera Barat
         </div>
-        <b>(${escape(namaPimpinan)})</b>
+        <b>(Sugeng Arianto)</b>
       </div>
       <div class="sign-col">
         <div>Pelaksana Lembur,</div>
@@ -184,12 +174,13 @@ async function buildPaper(){
     </div>
   </div>`;
 
-  return `${header}${table}${photoTable}${sign}
+  return `${header}${table}${sign}
   <div class="smallprint">Dicetak: ${new Date().toLocaleString('id-ID')}</div>`;
 }
 
 function escape(s){return String(s||'').replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
 
+/* ✅ FIX PREVIEW: tampilkan loading dan render setelah file dibaca */
 document.getElementById('previewBtn').addEventListener('click', async () => {
   const previewWrap = document.getElementById('previewWrap');
   const paper = document.getElementById('paper');
@@ -201,7 +192,6 @@ document.getElementById('previewBtn').addEventListener('click', async () => {
     paper.scrollIntoView({ behavior: 'smooth' });
   }, 200);
 });
-
 
 document.getElementById('downloadBtn').addEventListener('click',async()=>{
   const div=document.createElement('div');
