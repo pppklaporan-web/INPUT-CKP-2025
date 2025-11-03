@@ -61,10 +61,14 @@
     min-height:297mm;
     padding:20mm;
     background:white;
-    margin:0 auto;
+    margin:10m auto;
     color:#111;
     box-sizing:border-box;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
   }
+  .paper > * {width:100%; max-width:180mm;}
   .center{text-align:center}
   h2{margin:0 0 4px}
   table {
@@ -78,15 +82,11 @@
     padding:6px 8px;
     vertical-align:top;
   }
-  th {
-    background:#f3f3f3;
-    text-align:center;
-  }
+  th {background:#f3f3f3;text-align:center;}
   td:first-child{text-align:center;width:6%}
   td:nth-child(2){width:24%}
   td:nth-child(3),td:nth-child(4){width:35%}
 
-  /* foto di dalam tabel */
   .foto-cell{
     width:100%;
     max-width:300px;
@@ -99,7 +99,6 @@
     margin:4px auto;
   }
 
-  /* tanda tangan */
   .sign-section{margin-top:40px;}
   .sign-row{display:flex;justify-content:space-between;flex-wrap:wrap;text-align:center;}
   .sign-col{width:45%;min-width:220px;}
@@ -204,7 +203,7 @@ async function buildPaper(){
       </tr>
       <tr>
         <td>2</td>
-        <td><b>Pelaksanaan<br>Kegiatan</b></td>
+        <td>Pelaksanaan<br>Kegiatan</td>
         <td>${data1 ? `<img src="${data1}" class="foto-cell">` : ''}</td>
         <td>${data2 ? `<img src="${data2}" class="foto-cell">` : ''}</td>
       </tr>
@@ -224,6 +223,8 @@ async function buildPaper(){
       </div>
       <div class="sign-col">
         <div>Pelaksana Lembur,</div>
+        <br>
+        <br>
         <b>${escape(nama)}</b>
       </div>
     </div>
@@ -235,7 +236,7 @@ async function buildPaper(){
 
 function escape(s){return String(s||'').replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
 
-/* ✅ Preview fix */
+/* Preview */
 document.getElementById('previewBtn').addEventListener('click', async () => {
   const previewWrap = document.getElementById('previewWrap');
   const paper = document.getElementById('paper');
@@ -248,19 +249,20 @@ document.getElementById('previewBtn').addEventListener('click', async () => {
   }, 200);
 });
 
-/* ✅ Centered PDF output */
+/* PDF Center Fix */
 document.getElementById('downloadBtn').addEventListener('click',async()=>{
   const div=document.createElement('div');
   div.className='paper';
   div.innerHTML=await buildPaper();
+
   const opt={
-    margin:[15,15,15,15],
+    margin:[10,10,10,10],
     filename:`LAPORAN_LEMBUR_${(document.getElementById('nama').value||'').replaceAll(' ','_')}.pdf`,
     image:{type:'jpeg',quality:0.98},
-    html2canvas:{scale:2,scrollY:0,useCORS:true},
-    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
-    pagebreak:{mode:['avoid-all','css','legacy']}
+    html2canvas:{scale:2,scrollY:0,windowWidth:794,useCORS:true},
+    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
   };
+
   document.getElementById('downloadBtn').textContent='Membuat PDF...';
   document.getElementById('downloadBtn').disabled=true;
   await html2pdf().set(opt).from(div).save();
