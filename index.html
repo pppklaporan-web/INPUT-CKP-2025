@@ -190,12 +190,18 @@ async function buildPaper(){
 
 function escape(s){return String(s||'').replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
 
-document.getElementById('previewBtn').addEventListener('click',async()=>{
-  const paper=document.getElementById('paper');
-  paper.innerHTML=await buildPaper();
-  document.getElementById('previewWrap').style.display='block';
-  paper.scrollIntoView({behavior:'smooth'});
+document.getElementById('previewBtn').addEventListener('click', async () => {
+  const previewWrap = document.getElementById('previewWrap');
+  const paper = document.getElementById('paper');
+  paper.innerHTML = "<div style='text-align:center;padding:10px;color:#666;'>⏳ Membuat preview...</div>";
+  previewWrap.style.display = 'block';
+  setTimeout(async () => {
+    const html = await buildPaper();
+    paper.innerHTML = html;
+    paper.scrollIntoView({ behavior: 'smooth' });
+  }, 200);
 });
+
 
 document.getElementById('downloadBtn').addEventListener('click',async()=>{
   const div=document.createElement('div');
