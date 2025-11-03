@@ -22,86 +22,79 @@
   </style>
 </head>
 <body>
-  <div class="card">
-    
-    <h2>Unggah File CKP 2025</h2>
-
-    <label>Nama Pegawai</label>
-    <input id="nama" type="text" placeholder="Masukkan nama lengkap">
-
-    <label>Bulan (Folder Tujuan)</label>
-    <select id="bulanSelect"></select>
-
-    <label>File PDF</label>
-    <input id="pdfFile" type="file" accept="application/pdf">
-
-    <button class="btn" id="uploadBtn">Unggah Sekarang</button>
-
-    <div class="progress" id="progress"><div class="bar" id="bar"></div></div>
-    <div id="result" class="info"></div>
-
-    <footer>© 2025 BPS Provinsi Sumatera Barat</footer>
-  </div>
-
-  <script>
-    // load bulan dari server (getMonthFolders di Code.gs)
-    google.script.run.withSuccessHandler(function(months){
-      const sel = document.getElementById('bulanSelect');
-      sel.innerHTML = '';
-      months.forEach(m=>{
-        const o = document.createElement('option'); o.value = m; o.textContent = m; sel.appendChild(o);
-      });
-    }).getMonthFolders();
-
-    const uploadBtn = document.getElementById('uploadBtn');
-    const progress = document.getElementById('progress');
-    const bar = document.getElementById('bar');
-    const result = document.getElementById('result');
-
-    uploadBtn.addEventListener('click', ()=>{
-      const nama = document.getElementById('nama').value.trim();
-      const bulan = document.getElementById('bulanSelect').value;
-      const fileInput = document.getElementById('pdfFile');
-      result.style.display = 'none'; result.textContent = '';
-
-      if(!nama) return alert('Silakan masukkan nama.');
-      if(!bulan) return alert('Silakan pilih bulan.');
-      if(!fileInput.files.length) return alert('Silakan pilih file PDF.');
-
-      const file = fileInput.files[0];
-      if(file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) return alert('Hanya file PDF yang diperbolehkan.');
-
-      // Read file as base64 and call server
-      const reader = new FileReader();
-      reader.onloadstart = ()=>{ progress.style.display='block'; bar.style.width='5%'; result.style.display='none'; }
-      reader.onprogress = (e)=>{ if(e.lengthComputable){ const p=Math.round((e.loaded/e.total)*100); bar.style.width=p+'%'; } }
-      reader.onloadend = ()=>{ bar.style.width='100%'; }
-      reader.onload = function(ev){
-        const dataUrl = ev.target.result;
-        const base64 = dataUrl.split(';base64,').pop();
-
-        result.style.display='block';
-        result.className='info';
-        result.textContent='⏳ Mengunggah ke Google Drive...';
-
-        // Panggil fungsi server uploadFile(b64, originalName, nama, bulan)
-        google.script.run.withSuccessHandler(function(res){
-          progress.style.display='none';
-          if(res && res.success){
-            result.className='info success';
-            result.innerHTML = '✅ '+res.message + '<br><b>'+res.fileName+'</b><br><a href="'+res.fileUrl+'" target="_blank">🔗 Lihat di Drive</a>' +
-              '<br><small>Diunggah: '+ new Date().toLocaleString('id-ID') +'</small>';
-            document.getElementById('pdfFile').value=''; document.getElementById('nama').value='';
-            bar.style.width='0%';
-          } else {
-            result.className='info error';
-            result.textContent = '✖ Gagal: '+(res && res.message ? res.message : 'Terjadi kesalahan.');
+    <div class="container">
+      <h2>Unggah File SKP 2025</h2>
+      <form id="uploadForm">
+        <label>Nama Pegawai</label>
+        <input id="nama" type="text" required placeholder="Masukkan nama lengkap" />
+        <label>Bulan (Folder Tujuan)</label>
+        <select id="bulan" required>
+          <option value="">Pilih Bulan</option>
+          <option>JANUARI</option><option>FEBRUARI</option><option>MARET</option>
+          <option>APRIL</option><option>MEI</option><option>JUNI</option>
+          <option>JULI</option><option>AGUSTUS</option><option>SEPTEMBER</option>
+          <option>OKTOBER</option><option>NOVEMBER</option><option>DESEMBER</option>
+        </select>
+        <label>File PDF</label>
+        <input id="file" type="file" accept=".pdf" required />
+        <button type="submit">Unggah Sekarang</button>
+      </form>
+      <div id="result" class="result"></div>
+      <footer>© 2025 BPS Provinsi Sumatera Barat</footer>
+    </div>
+    <script>
+      const scriptURL = "https://script.google.com/macros/s/AKfycbzeOJwDKCcMm6Ctdwy5LCoB9xu-QcOv4vPHQH_Wv6cgdhR504WkSe8GuhJ6hye2ZNRDQg/exec";
+      document.getElementById("uploadForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const nama = document.getElementById("nama").value.trim();
+        const bulan = document.getElementById("bulan").value;
+        const fileInput = document.getElementById("file");
+        const result = document.getElementById("result");
+        if (!nama || !bulan || !fileInput.files.length) {
+          alert("Mohon lengkapi semua data!");
+          return;
+        }
+        const file = fileInput.files[0];
+        if (file.type !== "application/pdf") {
+          alert("Hanya file PDF yang diperbolehkan!");
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = async function (event) {
+          const base64Data = event.target.result.split(",")[1];
+          result.style.display = "block";
+          result.className = "result";
+          result.textContent = "⏳ Mengunggah ke Google Drive...";
+          try {
+            const res = await fetch(scriptURL, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                nama: nama,
+                bulan: bulan,
+                filename: file.name,
+                filedata: base64Data,
+              }),
+            });
+            const json = await res.json();
+            if (json.success) {
+              result.classList.add("success");
+              result.innerHTML =
+                "✅ " + json.message +
+                "<br><b>" + json.fileName + "</b><br><a href='" + json.fileUrl +
+                "' target='_blank'>🔗 Lihat di Drive</a>";
+            } else {
+              result.classList.add("error");
+              result.textContent = "❌ Gagal: " + json.message;
+            }
+          } catch (err) {
+            console.error(err);
+            result.classList.add("error");
+            result.textContent = "⚠️ Terjadi kesalahan saat mengunggah file.";
           }
-        }).uploadFile(base64, file.name, nama, bulan);
-      };
-
-      reader.readAsDataURL(file);
-    });
-  </script>
-</body>
+        };
+        reader.readAsDataURL(file);
+      });
+    </script>
+  </body>
 </html>
