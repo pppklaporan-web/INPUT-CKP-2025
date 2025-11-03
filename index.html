@@ -1,147 +1,171 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Unggah File SKP 2025</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Unggah File CKP 2025</title>
   <style>
     body {
       font-family: "Segoe UI", Roboto, Arial, sans-serif;
-      background: linear-gradient(160deg, #eaf4fc, #ffffff);
-      color: #222;
+      background: linear-gradient(135deg, #eaf4fc, #ffffff);
+      margin: 0;
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
       padding: 20px;
-      margin: 0;
     }
-    .container {
-      background: #fff;
-      border-radius: 14px;
-      padding: 28px 22px;
+    .card {
       width: 100%;
-      max-width: 460px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+      max-width: 480px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      text-align: center;
     }
     h2 {
-      text-align: center;
       color: #006eb6;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
     label {
       display: block;
-      margin-top: 14px;
+      margin-top: 12px;
       font-weight: 600;
+      text-align: left;
     }
-    input, select {
-      width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
-    }
+    input[type="text"],
+    select,
     input[type="file"] {
-      border: 1px solid #ccc;
-      padding: 8px;
-    }
-    button {
-      background: #006eb6;
-      color: white;
       width: 100%;
-      padding: 13px;
-      border: none;
+      padding: 10px;
       border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      margin-top: 20px;
+      border: 1px solid #ccc;
+      margin-top: 6px;
+      box-sizing: border-box;
+    }
+    .btn {
+      width: 100%;
+      background: #006eb6;
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      margin-top: 16px;
       cursor: pointer;
-      transition: 0.2s;
     }
-    button:hover {
-      background: #0086e0;
+    .progress {
+      height: 10px;
+      background: #f3f3f3;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 12px;
+      display: none;
     }
-    .result {
-      margin-top: 18px;
+    .bar {
+      height: 100%;
+      width: 0;
+      background: #006eb6;
+      transition: width 0.25s;
+    }
+    .info {
+      display: none;
+      margin-top: 14px;
       padding: 12px;
       border-radius: 8px;
       font-size: 14px;
-      display: none;
-      word-break: break-word;
     }
-    .success {
-      background: #e6f7ed;
-      color: #2e7d32;
+    .info.success {
+      background: #e9f8ec;
       border: 1px solid #2e7d32;
+      color: #2e7d32;
     }
-    .error {
+    .info.error {
       background: #fdecea;
-      color: #c62828;
       border: 1px solid #c62828;
+      color: #c62828;
     }
     footer {
-      text-align: center;
       font-size: 12px;
-      margin-top: 20px;
       color: #777;
+      margin-top: 14px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Unggah File SKP 2025</h2>
+  <div class="card">
+    <h2>Unggah File CKP 2025</h2>
 
-    <form id="uploadForm">
-      <label>Nama Pegawai</label>
-      <input id="nama" type="text" required placeholder="Masukkan nama lengkap" />
+    <label>Nama Pegawai</label>
+    <input id="nama" type="text" placeholder="Masukkan nama lengkap" />
 
-      <label>Bulan (Folder Tujuan)</label>
-      <select id="bulan" required>
-        <option value="">Pilih Bulan</option>
-        <option>Januari</option><option>Februari</option><option>Maret</option>
-        <option>April</option><option>Mei</option><option>Juni</option>
-        <option>Juli</option><option>Agustus</option><option>September</option>
-        <option>Oktober</option><option>November</option><option>Desember</option>
-      </select>
+    <label>Bulan (Folder Tujuan)</label>
+    <select id="bulanSelect" required>
+      <option value="">Pilih Bulan</option>
+      <option>Januari</option><option>Februari</option><option>Maret</option>
+      <option>April</option><option>Mei</option><option>Juni</option>
+      <option>Juli</option><option>Agustus</option><option>September</option>
+      <option>Oktober</option><option>November</option><option>Desember</option>
+    </select>
 
-      <label>File PDF</label>
-      <input id="file" type="file" accept=".pdf" required />
+    <label>File PDF</label>
+    <input id="pdfFile" type="file" accept="application/pdf" />
 
-      <button type="submit">Unggah Sekarang</button>
-    </form>
+    <button class="btn" id="uploadBtn">Unggah Sekarang</button>
 
-    <div id="result" class="result"></div>
+    <div class="progress" id="progress"><div class="bar" id="bar"></div></div>
+    <div id="result" class="info"></div>
+
     <footer>© 2025 BPS Provinsi Sumatera Barat</footer>
   </div>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbzeOJwDKCcMm6Ctdwy5LCoB9xu-QcOv4vPHQH_Wv6cgdhR504WkSe8GuhJ6hye2ZNRDQg/exec";
+    const scriptURL =
+      "https://script.google.com/macros/s/AKfycbx4PFAlBIw8VuDQhdaEKTKRDjuCf2g_MjWYM6gT1ODhhwj_lLyvd8Fv13EpJ05xgw0qbA/exec";
 
-    document.getElementById("uploadForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
+    const uploadBtn = document.getElementById("uploadBtn");
+    const progress = document.getElementById("progress");
+    const bar = document.getElementById("bar");
+    const result = document.getElementById("result");
+
+    uploadBtn.addEventListener("click", () => {
       const nama = document.getElementById("nama").value.trim();
-      const bulan = document.getElementById("bulan").value;
-      const fileInput = document.getElementById("file");
-      const result = document.getElementById("result");
-      result.style.display = "block";
-      result.className = "result";
-      result.textContent = "⏳ Mengunggah ke Google Drive...";
+      const bulan = document.getElementById("bulanSelect").value;
+      const fileInput = document.getElementById("pdfFile");
+      result.style.display = "none";
+      result.textContent = "";
 
-      if (!nama || !bulan || !fileInput.files.length) {
-        alert("Mohon lengkapi semua data!");
-        return;
-      }
+      if (!nama) return alert("Silakan masukkan nama.");
+      if (!bulan) return alert("Silakan pilih bulan.");
+      if (!fileInput.files.length) return alert("Silakan pilih file PDF.");
 
       const file = fileInput.files[0];
-      if (file.type !== "application/pdf") {
-        alert("Hanya file PDF yang diperbolehkan!");
-        return;
-      }
+      if (
+        file.type !== "application/pdf" &&
+        !file.name.toLowerCase().endsWith(".pdf")
+      )
+        return alert("Hanya file PDF yang diperbolehkan.");
 
       const reader = new FileReader();
-      reader.onload = async function (event) {
-        const base64Data = event.target.result.split(",")[1];
+      reader.onloadstart = () => {
+        progress.style.display = "block";
+        bar.style.width = "5%";
+      };
+      reader.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const p = Math.round((e.loaded / e.total) * 100);
+          bar.style.width = p + "%";
+        }
+      };
+      reader.onload = async (ev) => {
+        bar.style.width = "100%";
+        const base64 = ev.target.result.split(";base64,").pop();
+
+        result.style.display = "block";
+        result.className = "info";
+        result.textContent = "⏳ Mengunggah ke Google Drive...";
+
         try {
           const res = await fetch(scriptURL, {
             method: "POST",
@@ -150,25 +174,35 @@
               nama: nama,
               bulan: bulan,
               filename: file.name,
-              filedata: base64Data,
+              filedata: base64,
             }),
           });
 
           const json = await res.json();
+          progress.style.display = "none";
+
           if (json.success) {
-            result.classList.add("success");
+            result.className = "info success";
             result.innerHTML =
-              "✅ " + json.message +
-              "<br><b>" + json.fileName + "</b><br><a href='" +
-              json.fileUrl + "' target='_blank'>🔗 Lihat di Drive</a>";
-            document.getElementById("uploadForm").reset();
+              "✅ " +
+              json.message +
+              "<br><b>" +
+              json.fileName +
+              "</b><br><a href='" +
+              json.fileUrl +
+              "' target='_blank'>🔗 Lihat di Drive</a><br><small>Diunggah: " +
+              new Date().toLocaleString("id-ID") +
+              "</small>";
+            document.getElementById("pdfFile").value = "";
+            document.getElementById("nama").value = "";
+            bar.style.width = "0%";
           } else {
-            result.classList.add("error");
-            result.textContent = "❌ Gagal: " + json.message;
+            result.className = "info error";
+            result.textContent = "✖ Gagal: " + json.message;
           }
         } catch (err) {
           console.error(err);
-          result.classList.add("error");
+          result.className = "info error";
           result.textContent = "⚠️ Terjadi kesalahan saat mengunggah file.";
         }
       };
