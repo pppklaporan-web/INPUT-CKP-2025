@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Unggah File SKP 2025</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Roboto, Arial, sans-serif;
+        background: linear-gradient(160deg, #eaf4fc, #ffffff);
+        color: #222;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+        margin: 0;
+      }
+      .container {
+        background: #fff;
+        border-radius: 14px;
+        padding: 28px 22px;
+        width: 100%;
+        max-width: 460px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+      }
+      h2 {
+        text-align: center;
+        color: #006eb6;
+        margin-bottom: 20px;
+      }
+      label {
+        display: block;
+        margin-top: 14px;
+        font-weight: 600;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 12px;
+        margin-top: 6px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+      }
+      input[type="file"] {
+        border: 1px solid #ccc;
+        padding: 8px;
+      }
+      button {
+        background: #006eb6;
+        color: white;
+        width: 100%;
+        padding: 13px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        margin-top: 20px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      button:hover {
+        background: #0086e0;
+      }
+      .result {
+        margin-top: 18px;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        display: none;
+      }
+      .success {
+        background: #e6f7ed;
+        color: #2e7d32;
+        border: 1px solid #2e7d32;
+      }
+      .error {
+        background: #fdecea;
+        color: #c62828;
+        border: 1px solid #c62828;
+      }
+      footer {
+        text-align: center;
+        font-size: 12px;
+        margin-top: 20px;
+        color: #777;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Unggah File SKP 2025</h2>
+      <form id="uploadForm">
+        <label>Nama Pegawai</label>
+        <input id="nama" type="text" required placeholder="Masukkan nama lengkap" />
+        <label>Bulan (Folder Tujuan)</label>
+        <select id="bulan" required>
+          <option value="">Pilih Bulan</option>
+          <option>JANUARI</option><option>FEBRUARI</option><option>MARET</option>
+          <option>APRIL</option><option>MEI</option><option>JUNI</option>
+          <option>JULI</option><option>AGUSTUS</option><option>SEPTEMBER</option>
+          <option>OKTOBER</option><option>NOVEMBER</option><option>DESEMBER</option>
+        </select>
+        <label>File PDF</label>
+        <input id="file" type="file" accept=".pdf" required />
+        <button type="submit">Unggah Sekarang</button>
+      </form>
+      <div id="result" class="result"></div>
+      <footer>© 2025 BPS Provinsi Sumatera Barat</footer>
+    </div>
+    <script>
+      const scriptURL = "https://script.google.com/macros/s/AKfycbyoUZTNGwvVg5NkhrYrednftj8a3iSdDDaV229Uk_Gdlu0xTkiBCZ6gipS3wLzHMd0p/exec";
+      document.getElementById("uploadForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const nama = document.getElementById("nama").value.trim();
+        const bulan = document.getElementById("bulan").value;
+        const fileInput = document.getElementById("file");
+        const result = document.getElementById("result");
+        if (!nama || !bulan || !fileInput.files.length) {
+          alert("Mohon lengkapi semua data!");
+          return;
+        }
+        const file = fileInput.files[0];
+        if (file.type !== "application/pdf") {
+          alert("Hanya file PDF yang diperbolehkan!");
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = async function (event) {
+          const base64Data = event.target.result.split(",")[1];
+          result.style.display = "block";
+          result.className = "result";
+          result.textContent = "⏳ Mengunggah ke Google Drive...";
+          try {
+            const res = await fetch(scriptURL, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                nama: nama,
+                bulan: bulan,
+                filename: file.name,
+                filedata: base64Data,
+              }),
+            });
+            const json = await res.json();
+            if (json.success) {
+              result.classList.add("success");
+              result.innerHTML =
+                "✅ " + json.message +
+                "<br><b>" + json.fileName + "</b><br><a href='" + json.fileUrl +
+                "' target='_blank'>🔗 Lihat di Drive</a>";
+            } else {
+              result.classList.add("error");
+              result.textContent = "❌ Gagal: " + json.message;
+            }
+          } catch (err) {
+            console.error(err);
+            result.classList.add("error");
+            result.textContent = "⚠️ Terjadi kesalahan saat mengunggah file.";
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    </script>
+  </body>
+</html>
