@@ -1,145 +1,212 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Unggah File CKP 2025</title>
-  <style>
-    :root{--primary:#006eb6;--bg1:#eaf4fc;--bg2:#fff}
-    body{font-family:Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(135deg,var(--bg1),var(--bg2));margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-    .card{width:100%;max-width:480px;background:#fff;border-radius:16px;padding:28px;box-shadow:0 8px 24px rgba(0,0,0,0.08);text-align:center}
-    .logo img{width:110px;height:auto;border-radius:8px;margin-bottom:8px}
-    h2{color:var(--primary);margin:6px 0 18px}
-    label{text-align:left;display:block;margin-top:12px;font-weight:600;color:#333}
-    input[type=text],select,input[type=file]{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;margin-top:6px;box-sizing:border-box}
-    .btn{width:100%;background:var(--primary);color:#fff;border:none;padding:12px;border-radius:8px;font-weight:700;margin-top:16px;cursor:pointer}
-    .progress{height:10px;background:#f3f3f3;border-radius:8px;overflow:hidden;margin-top:12px;display:none}
-    .bar{height:100%;width:0;background:var(--primary);transition:width .25s}
-    .info{display:none;margin-top:14px;padding:12px;border-radius:8px;font-size:14px}
-    .info.success{background:#e9f8ec;border:1px solid #2e7d32;color:#2e7d32}
-    .info.error{background:#fdecea;border:1px solid #c62828;color:#c62828}
-    footer{font-size:12px;color:#777;margin-top:14px}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Laporan Kegiatan Lembur - Cetak PDF</title>
+
+<!-- html2pdf.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+  body{font-family:"Segoe UI",Roboto,Arial,sans-serif;margin:16px;color:#222;}
+  .wrap{max-width:900px;margin:0 auto;}
+  h1{color:#0b66c2;text-align:center;margin-bottom:20px;}
+  form.card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 4px 18px rgba(0,0,0,.06);margin-bottom:18px}
+  label{display:block;margin:10px 0 6px;font-weight:600}
+  input[type=text],textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc}
+  textarea{min-height:80px;resize:vertical}
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  .col{flex:1}
+  .small{max-width:200px}
+  button{background:#0b66c2;color:white;border:none;padding:12px 14px;border-radius:8px;cursor:pointer;font-weight:700}
+  .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+
+  /* Halaman cetak */
+  .paper{width:210mm;min-height:297mm;padding:20mm;background:white;margin:0 auto;color:#111;}
+  .center{text-align:center}
+  h2{margin:0 0 4px}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:0.95rem}
+  th,td{border:1px solid #000;padding:6px 8px;vertical-align:top}
+  th{background:#f3f3f3;text-align:center}
+  td:first-child{text-align:center;width:6%}
+  td:nth-child(2){width:24%}
+  td:nth-child(3),td:nth-child(4){width:35%}
+
+  /* Foto tabel */
+  .photo-table{margin-top:0;border:1px solid #000;width:100%;border-collapse:collapse}
+  .photo-table td{border:1px solid #000;text-align:center;padding:6px}
+  .photo-table img{
+    max-width:100%;
+    height:240px; /* seragam besar */
+    object-fit:cover;
+    border:1px solid #bbb;
+    padding:3px;
+    border-radius:6px;
+  }
+
+  /* Tanda tangan */
+  .sign-section{margin-top:40px;}
+  .sign-row{display:flex;justify-content:space-between;flex-wrap:wrap;text-align:center;}
+  .sign-col{width:45%;min-width:220px;}
+  .sign-col b{display:block;margin-top:60px}
+  .smallprint{font-size:0.85rem;color:#444;margin-top:6px;text-align:right}
+  @media (max-width:720px){.row{flex-direction:column}.sign-row{flex-direction:column;align-items:center}.sign-col{width:100%}.paper{padding:10mm}}
+</style>
 </head>
 <body>
-  <div class="card">
-    
-    <h2>Unggah File CKP 2025</h2>
+  <div class="wrap">
+    <h1>LAPORAN KEGIATAN LEMBUR — Generator PDF</h1>
 
-    <label>Nama Pegawai</label>
-    <input id="nama" type="text" placeholder="Masukkan nama lengkap">
+    <form id="form" class="card" onsubmit="return false;">
+      <div class="row">
+        <div class="col"><label>Hari</label><input id="hari" type="text" placeholder="Senin"></div>
+        <div class="col small"><label>Tanggal</label><input id="tgl" type="text" placeholder="01"></div>
+        <div class="col"><label>Bulan</label><input id="bulan" type="text" placeholder="Januari"></div>
+        <div class="col small"><label>Tahun</label><input id="tahun" type="text" placeholder="2025"></div>
+      </div>
 
-    <label>Bulan (Folder Tujuan)</label>
-    <select id="bulanSelect"></select>
+      <label>Nama Pegawai</label>
+      <input id="nama" type="text" placeholder="Masukkan nama lengkap" />
 
-    <label>File PDF</label>
-    <input id="pdfFile" type="file" accept="application/pdf">
+      <div class="row">
+        <div class="col">
+          <label>Rencana Pekerjaan</label>
+          <textarea id="kegiatan" placeholder="Tuliskan rencana pekerjaan"></textarea>
+        </div>
+        <div class="col">
+          <label>Hasil Lembur</label>
+          <textarea id="hasil" placeholder="Tuliskan hasil kegiatan"></textarea>
+        </div>
+      </div>
 
-    <button class="btn" id="uploadBtn">Unggah Sekarang</button>
+      <div class="row" style="margin-top:12px">
+        <div class="col">
+          <label>Pelaksanaan Kegiatan (Foto 1)</label>
+          <input id="foto1" type="file" accept="image/*" />
+        </div>
+        <div class="col">
+          <label>Pelaksanaan Kegiatan (Foto 2)</label>
+          <input id="foto2" type="file" accept="image/*" />
+        </div>
+      </div>
 
-    <div class="progress" id="progress"><div class="bar" id="bar"></div></div>
-    <div id="result" class="info"></div>
+     <div class="row" style="margin-top:12px">
+        <div class="col">
+          <label>Nama Pimpinan (Mengetahui)</label>
+          <input id="pimpinan" type="text" placeholder="Nama Pimpinan" />
+        </div>
+        <div class="col">
+          <label>Nama Pelaksana 2 (jika ada)</label>
+          <input id="nama2" type="text" placeholder="Nama pelaksana kedua (opsional)" />
+        </div>
+      </div>
 
-    <footer>© 2025 BPS Provinsi Sumatera Barat</footer>
+      <div class="actions">
+        <button id="previewBtn" type="button">Tampilkan Preview</button>
+        <button id="downloadBtn" type="button">Buat PDF / Cetak</button>
+      </div>
+    </form>
+
+    <div id="previewWrap" style="display:none;background:#f7f7f7;padding:12px;border-radius:8px">
+      <h3>Preview (akan tercetak seperti ini)</h3>
+      <div id="paper" class="paper"></div>
+    </div>
   </div>
 
- <script>
-      const form = document.getElementById("form");
-      const submitButton = document.getElementById("submit-button");
-      const messageDiv = document.getElementById("message");
-      const fileInput = document.getElementById("fileInput");
-      const fileNameDisplay = document.getElementById("fileNameDisplay");
+<script>
+const pimpinan = "Nama Pimpinan"; // <-- ubah di sini sesuai pimpinan saat ini
 
-      fileInput.addEventListener("change", function () {
-        if (this.files && this.files.length > 0) {
-          fileNameDisplay.textContent = this.files[0].name;
-        } else {
-          fileNameDisplay.textContent = "No file selected";
-        }
-      });
+function fileToDataURL(file){
+  return new Promise((resolve)=>{
+    if(!file){resolve(null);return;}
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result);
+    reader.readAsDataURL(file);
+  });
+}
 
-      async function uploadFile(file) {
-        return new Promise((resolve, reject) => {
-          const fr = new FileReader();
-          fr.onload = (e) => {
-            const data = e.target.result.split(",");
-            const obj = {
-              fileName: file.name,
-              mimeType: data[0].match(/:(\w.+);/)[1],
-              data: data[1],
-            };
-            resolve(obj);
-          };
-          fr.onerror = reject;
-          fr.readAsDataURL(file);
-        });
-      }
+async function buildPaper(){
+  const hari=document.getElementById('hari').value||'';
+  const tgl=document.getElementById('tgl').value||'';
+  const bulan=document.getElementById('bulan').value||'';
+  const tahun=document.getElementById('tahun').value||'';
+  const nama=document.getElementById('nama').value||'';
+  const kegiatan=document.getElementById('kegiatan').value||'';
+  const hasil=document.getElementById('hasil').value||'';
+  const foto1=document.getElementById('foto1').files[0];
+  const foto2=document.getElementById('foto2').files[0];
+  const pimpinan = document.getElementById('pimpinan').value || '';
+  const data1=await fileToDataURL(foto1);
+  const data2=await fileToDataURL(foto2);
 
-      form.addEventListener("submit", async function (e) {
-        e.preventDefault();
+  const header=`<div class="center">
+    <h2>LAPORAN KEGIATAN LEMBUR</h2>
+    <div style="margin-top:6px"><b>${hari}, ${tgl} ${bulan} ${tahun}</b></div>
+  </div>`;
 
-        messageDiv.textContent = "Submitting...";
-        messageDiv.style.display = "block";
-        messageDiv.style.backgroundColor = "beige";
-        messageDiv.style.color = "black";
-        submitButton.disabled = true;
-        submitButton.classList.add("is-loading");
+  const table=`
+  <table>
+    <thead>
+      <tr><th>No</th><th>Nama</th><th>Rencana Pekerjaan</th><th>Hasil Lembur</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>${escape(nama)}</td><td>${escape(kegiatan)}</td><td>${escape(hasil)}</td></tr>
+    </tbody>
+  </table>`;
 
-        try {
-          const formData = new FormData(this);
-          const formDataObj = {};
+  let photoTable='';
+  if(data1 || data2){
+    photoTable=`<table class="photo-table">
+      <tr><th colspan="2">Pelaksanaan Kegiatan</th></tr>
+      <tr>
+        <td>${data1 ? `<img src="${data1}">` : ''}</td>
+        <td>${data2 ? `<img src="${data2}">` : ''}</td>
+      </tr>
+    </table>`;
+  }
 
-          for (let [key, value] of formData.entries()) {
-            formDataObj[key] = value;
-          }
+  const sign=`
+  <div class="sign-section">
+    <div class="sign-row">
+      <div class="sign-col">
+        <div class="sign-title">
+          Mengetahui,<br>
+          Kepala Badan Pusat Statistik<br>
+          Provinsi Sumatera Barat
+        </div>
+        <b>(${escape(namaPimpinan)})</b>
+      </div>
+      <div class="sign-col">
+        <div>Pelaksana Lembur,</div>
+        <b>${escape(nama)}</b>
+      </div>
+    </div>
+  </div>`;
 
-          if (fileInput.files.length > 0) {
-            const fileObj = await uploadFile(fileInput.files[0]);
-            formDataObj.fileData = fileObj;
-          }
+  return `${header}${table}${photoTable}${sign}
+  <div class="smallprint">Dicetak: ${new Date().toLocaleString('id-ID')}</div>`;
+}
 
-          const scriptURL = "https://script.google.com/macros/s/AKfycbzeOJwDKCcMm6Ctdwy5LCoB9xu-QcOv4vPHQH_Wv6cgdhR504WkSe8GuhJ6hye2ZNRDQg/exec";
+function escape(s){return String(s||'').replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
 
-          const response = await fetch(scriptURL, {
-            redirect: "follow",
-            method: "POST",
-            body: JSON.stringify(formDataObj),
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-          });
+document.getElementById('previewBtn').addEventListener('click',async()=>{
+  const paper=document.getElementById('paper');
+  paper.innerHTML=await buildPaper();
+  document.getElementById('previewWrap').style.display='block';
+  paper.scrollIntoView({behavior:'smooth'});
+});
 
-          const data = await response.json();
-
-          if (data.status === "success") {
-            messageDiv.textContent = data.message || "Data submitted successfully!";
-            messageDiv.style.backgroundColor = "#ff3e00";
-            messageDiv.style.color = "white";
-            form.reset();
-            fileNameDisplay.textContent = "No file selected";
-          } else {
-            throw new Error(data.message || "Submission failed");
-          }
-        } catch (error) {
-          console.error("Error:", error);
-          messageDiv.textContent = "Error: " + error.message;
-          messageDiv.style.backgroundColor = "#f14668";
-          messageDiv.style.color = "white";
-        } finally {
-          submitButton.disabled = false;
-          submitButton.classList.remove("is-loading");
-          setTimeout(() => {
-            messageDiv.textContent = "";
-            messageDiv.style.display = "none";
-          }, 4000);
-        }
-      });
-
-      const cancelButton = form.querySelector("button.is-danger");
-      cancelButton.addEventListener("click", function () {
-        form.reset();
-        fileNameDisplay.textContent = "No file selected";
-        messageDiv.style.display = "none";
-      });
-    </script>
-  </body>
+document.getElementById('downloadBtn').addEventListener('click',async()=>{
+  const div=document.createElement('div');
+  div.className='paper';
+  div.innerHTML=await buildPaper();
+  const opt={margin:[10,10,10,10],filename:`LAPORAN_LEMBUR_${(document.getElementById('nama').value||'').replaceAll(' ','_')}.pdf`,
+    image:{type:'jpeg',quality:0.95},html2canvas:{scale:2},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}};
+  document.getElementById('downloadBtn').textContent='Membuat PDF...';document.getElementById('downloadBtn').disabled=true;
+  await html2pdf().set(opt).from(div).save();
+  document.getElementById('downloadBtn').textContent='Buat PDF / Cetak';document.getElementById('downloadBtn').disabled=false;
+});
+</script>
+</body>
 </html>
-
