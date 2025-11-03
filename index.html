@@ -7,26 +7,81 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
-  body{font-family:"Segoe UI",Roboto,Arial,sans-serif;margin:16px;color:#222;}
-  .wrap{max-width:900px;margin:0 auto;}
-  h1{color:#0b66c2;text-align:center;margin-bottom:20px;}
-  form.card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 4px 18px rgba(0,0,0,.06);margin-bottom:18px}
-  label{display:block;margin:10px 0 6px;font-weight:600}
-  input[type=text],textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc}
-  textarea{min-height:80px;resize:vertical}
-  .row{display:flex;gap:12px;flex-wrap:wrap}
-  .col{flex:1}
-  .small{max-width:200px}
-  button{background:#0b66c2;color:white;border:none;padding:12px 14px;border-radius:8px;cursor:pointer;font-weight:700}
-  .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+  body {
+    font-family:"Segoe UI",Roboto,Arial,sans-serif;
+    margin:16px;
+    color:#222;
+    background:#f7f9fb;
+  }
+  .wrap {
+    max-width:900px;
+    margin:0 auto;
+  }
+  h1 {
+    color:#0b66c2;
+    text-align:center;
+    margin-bottom:20px;
+  }
+  form.card {
+    background:#fff;
+    border-radius:10px;
+    padding:16px;
+    box-shadow:0 4px 18px rgba(0,0,0,.06);
+    margin-bottom:18px;
+  }
+  label {
+    display:block;
+    margin:10px 0 6px;
+    font-weight:600;
+  }
+  input[type=text], textarea {
+    width:100%;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #ccc;
+  }
+  textarea {min-height:80px;resize:vertical}
+  .row {display:flex;gap:12px;flex-wrap:wrap}
+  .col {flex:1}
+  .small {max-width:200px}
+  button {
+    background:#0b66c2;
+    color:white;
+    border:none;
+    padding:12px 14px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:700;
+  }
+  .actions {display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
 
   /* area cetak */
-  .paper{width:210mm;min-height:297mm;padding:20mm;background:white;margin:0 auto;color:#111;}
+  .paper {
+    width:210mm;
+    min-height:297mm;
+    padding:20mm;
+    background:white;
+    margin:0 auto;
+    color:#111;
+    box-sizing:border-box;
+  }
   .center{text-align:center}
   h2{margin:0 0 4px}
-  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:0.95rem}
-  th,td{border:1px solid #000;padding:6px 8px;vertical-align:top}
-  th{background:#f3f3f3;text-align:center}
+  table {
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+    font-size:0.95rem;
+  }
+  th,td {
+    border:1px solid #000;
+    padding:6px 8px;
+    vertical-align:top;
+  }
+  th {
+    background:#f3f3f3;
+    text-align:center;
+  }
   td:first-child{text-align:center;width:6%}
   td:nth-child(2){width:24%}
   td:nth-child(3),td:nth-child(4){width:35%}
@@ -149,7 +204,7 @@ async function buildPaper(){
       </tr>
       <tr>
         <td>2</td>
-        <td>Pelaksanaan<br>Kegiatan</td>
+        <td><b>Pelaksanaan<br>Kegiatan</b></td>
         <td>${data1 ? `<img src="${data1}" class="foto-cell">` : ''}</td>
         <td>${data2 ? `<img src="${data2}" class="foto-cell">` : ''}</td>
       </tr>
@@ -165,7 +220,7 @@ async function buildPaper(){
           Kepala Badan Pusat Statistik<br>
           Provinsi Sumatera Barat
         </div>
-        <b>(Sugeng Arianto)</b>
+        <b>(Drs. ........................................)</b>
       </div>
       <div class="sign-col">
         <div>Pelaksana Lembur,</div>
@@ -180,7 +235,7 @@ async function buildPaper(){
 
 function escape(s){return String(s||'').replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
 
-/* ✅ FIX PREVIEW: tampilkan loading dan render setelah file dibaca */
+/* ✅ Preview fix */
 document.getElementById('previewBtn').addEventListener('click', async () => {
   const previewWrap = document.getElementById('previewWrap');
   const paper = document.getElementById('paper');
@@ -193,20 +248,24 @@ document.getElementById('previewBtn').addEventListener('click', async () => {
   }, 200);
 });
 
+/* ✅ Centered PDF output */
 document.getElementById('downloadBtn').addEventListener('click',async()=>{
   const div=document.createElement('div');
   div.className='paper';
   div.innerHTML=await buildPaper();
-  const opt={margin:[15,15,15,15],
-  filename:`LAPORAN_LEMBUR_${(document.getElementById('nama').value||'').replaceAll(' ','_')}.pdf`,
-  image:{type:'jpeg',quality:0.98},
-  html2canvas:{scale:2, scrollY: 0, useCORS: true},
-  jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
-  pagebreak:{mode:['avoid-all','css','legacy']}
-};
-  document.getElementById('downloadBtn').textContent='Membuat PDF...';document.getElementById('downloadBtn').disabled=true;
+  const opt={
+    margin:[15,15,15,15],
+    filename:`LAPORAN_LEMBUR_${(document.getElementById('nama').value||'').replaceAll(' ','_')}.pdf`,
+    image:{type:'jpeg',quality:0.98},
+    html2canvas:{scale:2,scrollY:0,useCORS:true},
+    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+    pagebreak:{mode:['avoid-all','css','legacy']}
+  };
+  document.getElementById('downloadBtn').textContent='Membuat PDF...';
+  document.getElementById('downloadBtn').disabled=true;
   await html2pdf().set(opt).from(div).save();
-  document.getElementById('downloadBtn').textContent='Buat PDF / Cetak';document.getElementById('downloadBtn').disabled=false;
+  document.getElementById('downloadBtn').textContent='Buat PDF / Cetak';
+  document.getElementById('downloadBtn').disabled=false;
 });
 </script>
 </body>
